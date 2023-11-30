@@ -51,7 +51,7 @@ function obreCasella(x, y){
     let celda = document.getElementById(`${x}-${y}`);
     if (celda.getAttribute("data-estado") === "cerrado") {
         celda.setAttribute("data-estado", "abierto");
-        if (esMina(x, y)) {
+        if ( esMina(x, y)) {
             // Recorremos el tablero para buscar las minas restantes y mostrarlas
             for (let i = 0; i < inputFilas; i++) {
                 for (let j = 0; j < inputColumnas; j++) {
@@ -74,6 +74,12 @@ function obreCasella(x, y){
                 alert("¡Has ganado!");
             }
         }
+
+        if(document.getElementById(x+"-"+y).getAttribute("data-num-mines") ==0){
+            abrirBlancos(x,y);
+        }
+    } else {
+        celda.disabled =true;
     }
 }
 
@@ -122,4 +128,28 @@ function setMinesAdjacents(x, y, nMinesAdjacents){
     let celda = document.getElementById(`${x}-${y}`);
     celda.setAttribute("data-num-mines", `${nMinesAdjacents}`);
 }
-
+function abrirBlancos(x, y) {
+    for (let i = x - 1; i <= x + 1; i++) {
+        for (let j = y - 1; j <= y + 1; j++) {
+            if (i >= 0 && i < inputFilas && j >= 0 && j < inputColumnas && !(i === x && j === y)) {
+                let celda = document.getElementById(`${i}-${j}`);
+                if (celda.getAttribute("data-estado") === "cerrado") {
+                    let numMinasAdyacentes = calculaAdjacents(i, j);
+                    if (numMinasAdyacentes === 0) {
+                        celda.setAttribute("data-estado", "abierto");
+                        celdasSinMinaAbiertas++;
+                        celda.innerHTML = numMinasAdyacentes !== '' ? numMinasAdyacentes : '';
+                        abrirBlancos(i, j); // Llamada recursiva para seguir abriendo blancos adyacentes
+                    } else {
+                        celda.setAttribute("data-estado", "abierto");
+                        celdasSinMinaAbiertas++;
+                        celda.innerHTML = numMinasAdyacentes;
+                    }
+                    if (celdasSinMinaAbiertas === celdasSinMina) {
+                        alert("¡Has ganado!");
+                    }
+                }
+            }
+        }
+    }
+}
